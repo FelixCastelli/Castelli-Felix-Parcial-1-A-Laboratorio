@@ -244,7 +244,7 @@ def crear_recibo_txt(lista: str, precio_final: float):
     Returns:
         None
     """
-    file = open("D:\\Usuarios\\mylov\\Escritorio\\Castelli Felix Parcial 1-A Laboratorio\\Primer Parcial\\Recibo.txt", 'w', encoding='utf-8')
+    file = open("D:\\Usuarios\\mylov\\Escritorio\\UTN\\Castelli Felix Parcial 1-A Laboratorio\\Primer Parcial\\Recibo.txt", 'w', encoding='utf-8')
 
     file.write("                                            ====================================\n")
     file.write("                                                      RECIBO DE COMPRA\n")
@@ -421,7 +421,7 @@ def crear_json(lista: list, key: str, nombre: str):
         None
     """
     lista_filtrada = buscar_por_nombre(lista, key, nombre)
-    with open("D:\\Usuarios\\mylov\\Escritorio\\Castelli Felix Parcial 1-A Laboratorio\\Primer Parcial\\lista_alimentos.json", 'w', encoding='utf-8') as file:
+    with open("D:\\Usuarios\\mylov\\Escritorio\\UTN\\Castelli Felix Parcial 1-A Laboratorio\\Primer Parcial\\lista_alimentos.json", 'w', encoding='utf-8') as file:
 
         json.dump(lista_filtrada, file, indent = 2 , ensure_ascii= False, separators=(", ", " : "))
     """El primer parametro es la lista en la que se va a basar, el segundo parametro es en donde va a escribir, El tercer parametro es la identacion, 
@@ -490,3 +490,100 @@ def actualizar_precios(ruta: str, lista: list, key: str, key2: str, key3: str, k
     print("============================================================================")
     print("El archivo de insumos fue actualizado correctamente con los nuevos precios")
     print("============================================================================")
+
+"""
+El programa deberá permitir agregar un nuevo producto a la lista (mediante una nueva opción de menú). Al momento de ingresar la marca del producto se deberá mostrar por pantalla un
+listado con todas las marcas disponibles. Las mismas serán cargadas al programa desde el archivo marcas.txt. En cuanto a las características, 
+se podrán agregar un mínimo de una y un máximo de 3.
+"""
+
+def leer_marcas(ruta: str):
+    lista_marcas = []
+
+    with open(ruta, 'r') as file:
+        marcas = file.readlines()
+        for i in marcas:
+            i = i.strip()
+            lista_marcas.append(i)
+
+    return lista_marcas
+
+def mostrar_marcas(marcas: list) -> list:
+
+    print("Marcas disponibles: ")
+    print("--------------------")
+    for i in marcas:
+        print(i)
+        print("--------------------")
+
+
+def ingreso_producto(ruta: str):
+    lista_caracteristicas = []
+    lista_productos = []
+    contador = 0
+
+    marcas = leer_marcas(ruta)     
+    mostrar_marcas(marcas)
+
+    marca = input("Ingrese la marca del producto: ").capitalize()
+    while marca not in marcas:
+        marca = input("ERROR, esa marca no esta en la lista, ingrese otra marca: ").capitalize()
+
+    nombre = input("Ingrese el nombre del producto que quiera agregar: ").capitalize()
+
+    while contador < 3:
+        if contador == 0:
+            caracteristica = input("Ingrese la caracteristica del producto: ")
+            lista_caracteristicas.append(caracteristica)    
+    
+        elif contador < 3:
+            opcion_caracteristica = input("Desea agregar otra caracteristica? s/n: ").lower()
+            if opcion_caracteristica == 's':
+                caracteristica = input("Ingrese otra caracteristica del producto: ")
+                lista_caracteristicas.append(caracteristica)
+            else:
+                break
+        contador += 1
+
+    while True:
+        try:
+            id = int(input("Ingrese el ID del producto: "))
+            if id < 50:
+                id = int(input("Ingrese un valor de id que no exista:"))
+            break
+        except ValueError:
+            print("ERROR, eso no es un numero. Por favor, ingrese un numero")
+
+    while True:
+        try:
+            precio = float(input("Ingrese el precio del producto: "))
+            if precio < 0.50:
+                precio = float(input("Ingrese un precio valido: "))
+            break
+        except ValueError:
+            print("ERROR, eso no es un numero. Por favor, ingrese un numero")
+
+    producto = {
+        'id': id,
+        'nombre': nombre,
+        'marca': marca,
+        'precio': precio,
+        'caracteristicas': lista_caracteristicas
+    }
+
+    lista_productos.append(producto)
+
+    with open(ruta, 'a') as file:
+        file.write("======================\n")
+        file.write("Productos agregados:\n")
+        file.write("======================\n")
+        file.write(f"Nombre: {producto['nombre']}\n")
+        file.write(f"Marca: {producto['marca']}\n")
+        file.write(f"Caracteristicas: ")
+        for caracteristica in producto['caracteristicas']:
+            file.write(f" - {caracteristica}")  
+    return lista_productos
+
+"""
+Agregar una opción para guardar todos los datos actualizados (incluyendo las altas). El usuario elegirá el tipo de formato de exportación: csv o json.
+"""

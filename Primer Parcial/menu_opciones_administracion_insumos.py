@@ -14,13 +14,15 @@ def menu_opciones():
 7- Guardar en Alimentos en formato JSON
 8- Leer desde formato JSON
 9- Actualizar precios
-10- Salir del programa
+10- Agregar un nuevo producto a la lista
+11- Guardar datos actualizados
+12- Salir del programa 
     """)
     
     while True:
         try:
             opcion = int(input("Ingrese la opcion: "))
-            while opcion < 1 or opcion > 10:
+            while opcion < 1 or opcion > 12:
                 opcion = int(input("ERROR, ingrese un numero que este dentro de las opciones: "))
 
             return opcion
@@ -32,7 +34,7 @@ def menu_opciones():
 
 
     
-def elegir_opcion(opcion: int, ruta_csv: str, lista_csv: list, lista_dict_transformada: list, lista_alimentos: list, ruta_json: str):
+def elegir_opcion(opcion: int, ruta_csv: str, lista_csv: list, lista_dict_transformada: list, lista_alimentos: list, ruta_json: str, ruta_txt):
     salir = None # Inicializado en None indica que el usuario todavia no salio, si decide salir esta variable cambia de valor
     match opcion:
         case 1:
@@ -55,7 +57,12 @@ def elegir_opcion(opcion: int, ruta_csv: str, lista_csv: list, lista_dict_transf
         case 9:
             actualizar_precios(ruta_csv, lista_dict_transformada, 'id', 'nombre', 'marca', 'precio', 'caracteristicas')
         case 10:
+            ingreso_producto(ruta_txt)
+        case 11:
+            pass
+        case 12:
             os.system("cls")
             salir = input("Seguro que desea salir? s/n: ")
+            pass
 
     return salir, lista_csv, lista_dict_transformada, lista_alimentos
