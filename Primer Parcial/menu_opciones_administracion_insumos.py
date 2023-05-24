@@ -1,0 +1,61 @@
+import os
+from funciones_administracion_insumos_tienda_de_mascotas import *
+
+def menu_opciones():
+    os.system("cls")
+    print(""" 
+*** Tienda de Mascotas *** 
+1- Cargar datos del archivo
+2- Listar cantidad por marca
+3- Listar insumos por marca
+4- Buscar insumo por característica
+5- Listar insumos ordenados
+6- Realizar compras
+7- Guardar en Alimentos en formato JSON
+8- Leer desde formato JSON
+9- Actualizar precios
+10- Salir del programa
+    """)
+    
+    while True:
+        try:
+            opcion = int(input("Ingrese la opcion: "))
+            while opcion < 1 or opcion > 10:
+                opcion = int(input("ERROR, ingrese un numero que este dentro de las opciones: "))
+
+            return opcion
+        
+        except ValueError:
+            print("ERROR, eso no es un numero")
+            os.system("pause")
+            os.system("cls")
+
+
+    
+def elegir_opcion(opcion: int, ruta_csv: str, lista_csv: list, lista_dict_transformada: list, lista_alimentos: list, ruta_json: str):
+    salir = None # Inicializado en None indica que el usuario todavia no salio, si decide salir esta variable cambia de valor
+    match opcion:
+        case 1:
+            lista_csv = leer_csv(ruta_csv)
+            lista_dict_transformada = transformar_lista_a_dict(ruta_csv, lista_csv, 'id', 'nombre', 'marca', 'precio', 'caracteristicas')
+        case 2:
+            listar_cantidad_por_clave(lista_dict_transformada, 'marca')
+        case 3:
+            listar_insumos_por_clave(lista_dict_transformada, 'marca', 'precio', 'nombre')
+        case 4:
+            buscar_insumo_por_caracteristica(lista_dict_transformada, 'caracteristicas', 'nombre', 'marca', 'precio', 'id')
+        case 5:
+            listar_insumos_ordenados(lista_dict_transformada, 'marca', 'precio', 'nombre', 'id', 'caracteristicas')
+        case 6:
+            realizar_compra(lista_dict_transformada, 'marca', 'id', 'precio', 'nombre')
+        case 7:
+            crear_json(lista_dict_transformada, 'nombre', 'Alimento')
+        case 8:
+            leer_json(ruta_json)
+        case 9:
+            actualizar_precios(ruta_csv, lista_dict_transformada, 'id', 'nombre', 'marca', 'precio', 'caracteristicas')
+        case 10:
+            os.system("cls")
+            salir = input("Seguro que desea salir? s/n: ")
+
+    return salir, lista_csv, lista_dict_transformada, lista_alimentos
