@@ -34,7 +34,7 @@ def menu_opciones():
 
 
     
-def elegir_opcion(opcion: int, ruta_csv: str, lista_csv: list, lista_dict_transformada: list, lista_alimentos: list, ruta_json: str, ruta_txt):
+def elegir_opcion(opcion: int, ruta_csv: str, lista_csv: list, lista_dict_transformada: list, lista_alimentos: list, ruta_json: str, ruta_marcas_txt: str, ruta_csv_nueva: str, ruta_json_nueva: str):
     salir = None # Inicializado en None indica que el usuario todavia no salio, si decide salir esta variable cambia de valor
     match opcion:
         case 1:
@@ -57,9 +57,11 @@ def elegir_opcion(opcion: int, ruta_csv: str, lista_csv: list, lista_dict_transf
         case 9:
             actualizar_precios(ruta_csv, lista_dict_transformada, 'id', 'nombre', 'marca', 'precio', 'caracteristicas')
         case 10:
-            ingreso_producto(ruta_txt)
+            ingreso_producto(ruta_marcas_txt, ruta_csv, lista_dict_transformada)
+            lista_csv = leer_csv(ruta_csv)
+            lista_dict_transformada = transformar_lista_a_dict(ruta_csv, lista_csv, 'id', 'nombre', 'marca', 'precio', 'caracteristicas')
         case 11:
-            pass
+            guardar_en_archivo(ruta_csv, ruta_csv_nueva, ruta_json_nueva)
         case 12:
             os.system("cls")
             salir = input("Seguro que desea salir? s/n: ")

@@ -3,7 +3,9 @@ from menu_opciones_administracion_insumos import *
 
 ruta_csv = "D:\\Usuarios\\mylov\\Escritorio\\UTN\\Castelli Felix Parcial 1-A Laboratorio\\Primer Parcial\\insumos.csv"
 ruta_json = "D:\\Usuarios\\mylov\\Escritorio\\UTN\\Castelli Felix Parcial 1-A Laboratorio\\Primer Parcial\\lista_alimentos.json"
-ruta_txt = "D:\\Usuarios\\mylov\\Escritorio\\UTN\\Castelli Felix Parcial 1-A Laboratorio\\Primer Parcial\\marcas.txt"
+ruta_marcas_txt = "D:\\Usuarios\\mylov\\Escritorio\\UTN\\Castelli Felix Parcial 1-A Laboratorio\\Primer Parcial\\marcas.txt"
+ruta_csv_nueva = "D:\\Usuarios\\mylov\\Escritorio\\UTN\\Castelli Felix Parcial 1-A Laboratorio\\Primer Parcial\\nuevos_insumos.csv"
+ruta_json_nueva = "D:\\Usuarios\\mylov\\Escritorio\\UTN\\Castelli Felix Parcial 1-A Laboratorio\\Primer Parcial\\nuevos_insumos.json"
 
 lista_csv = []
 lista_dict_transformada = []
@@ -26,16 +28,7 @@ while True:
         os.system("pause")
         continue
 
-    if opcion == 7:
-        flag_lista_json = True
-
-    elif opcion == 8 and not flag_lista_json:
-        os.system("cls")
-        print("ERROR, La lista de alimentos no está creada. Por favor, cree la lista antes de continuar")
-        os.system("pause")
-        continue
-
-    opcion_salir, lista_csv, lista_dict_transformada, lista_alimentos = elegir_opcion(opcion, ruta_csv, lista_csv, lista_dict_transformada, lista_alimentos, ruta_json, ruta_txt)
+    opcion_salir, lista_csv, lista_dict_transformada, lista_alimentos = elegir_opcion(opcion, ruta_csv, lista_csv, lista_dict_transformada, lista_alimentos, ruta_json, ruta_marcas_txt, ruta_csv_nueva, ruta_json_nueva)
     if opcion_salir == 's':
         os.system("cls")
         break

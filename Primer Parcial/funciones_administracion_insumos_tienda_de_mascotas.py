@@ -224,7 +224,7 @@ ID: {insumo[key4]}
 Nombre: {insumo[key3]}
 Marca: {insumo[key]}
 Precio: ${insumo[key2]}
-Caracteristicas: {insumo[key5][0]} 
+Caracteristica: {insumo[key5][0]}
                     """) # Ya que estan separados por el split agarrando el indice 0 va a mostrar solo la primera caracteristica
         print("---------------------------------------------------------------------------------------")
 
@@ -244,7 +244,7 @@ def crear_recibo_txt(lista: str, precio_final: float):
     Returns:
         None
     """
-    file = open("D:\\Usuarios\\mylov\\Escritorio\\UTN\\Castelli Felix Parcial 1-A Laboratorio\\Primer Parcial\\Recibo.txt", 'w', encoding='utf-8')
+    file = open("D:\\Usuarios\\mylov\\Escritorio\\UTN\\Castelli Felix Parcial 1-A Laboratorio\\Primer Parcial\\Recibo.txt", 'a', encoding='utf-8')
 
     file.write("                                            ====================================\n")
     file.write("                                                      RECIBO DE COMPRA\n")
@@ -289,7 +289,7 @@ def mostrar_productos(productos: list, key: str, key2: str, key3: str, key4: str
 ID: {producto[key]}
 Nombre: {producto[key2]}
 Precio: ${producto[key3]}
-Caracteristicas: {producto[key4]}
+Caracteristicas: {producto[key4.replace('[]', '')]}
 """)
         print("------------------------------------------------------------------------------")
 
@@ -479,12 +479,11 @@ def actualizar_precios(ruta: str, lista: list, key: str, key2: str, key3: str, k
         'nombre': precio[key2],
         'marca': precio[key3], 
         'precio': round(((precio[key4] * 8.4 / 100) + precio[key4]), 2), 
-        'caracteristicas': precio[key5]}, 
-        lista)) # La funcion lamba crea una lista con los precios actualizados haciendo la cuenta en medio
+        'caracteristicas': (precio[key5])}, lista))
     
     with open(ruta, 'w', encoding='utf-8') as file:
         for precio in precios_actualizados:
-            lista_nuevos_precios = f"{precio['id']},{precio['nombre']},{precio['marca']},${precio['precio']},{precio['caracteristicas']}\n" # Le doy formato a los datos
+            lista_nuevos_precios = f"{precio['id']},{precio['nombre']},{precio['marca']},${precio['precio']},{precio['caracteristicas']}\n"  # Le doy formato a los datos
             file.write(lista_nuevos_precios)
 
     print("============================================================================")
@@ -517,42 +516,37 @@ def mostrar_marcas(marcas: list) -> list:
         print("--------------------")
 
 
-def ingreso_producto(ruta: str):
+def ingreso_producto(ruta: str, ruta2: str, lista_dict_transformada: list):
     lista_caracteristicas = []
-    lista_productos = []
     contador = 0
+
+    for insumo in lista_dict_transformada:
+        contador_de_id = int(insumo["id"])
+
+    contador_de_id += 1
 
     marcas = leer_marcas(ruta)     
     mostrar_marcas(marcas)
 
-    marca = input("Ingrese la marca del producto: ").capitalize()
+    marca = input("Ingrese la marca del producto: ").title()
     while marca not in marcas:
-        marca = input("ERROR, esa marca no esta en la lista, ingrese otra marca: ").capitalize()
+        marca = input("ERROR, esa marca no esta en la lista, ingrese otra marca: ").title()
 
     nombre = input("Ingrese el nombre del producto que quiera agregar: ").capitalize()
 
     while contador < 3:
         if contador == 0:
-            caracteristica = input("Ingrese la caracteristica del producto: ")
+            caracteristica = input("Ingrese la caracteristica del producto: ").capitalize()
             lista_caracteristicas.append(caracteristica)    
     
         elif contador < 3:
             opcion_caracteristica = input("Desea agregar otra caracteristica? s/n: ").lower()
             if opcion_caracteristica == 's':
-                caracteristica = input("Ingrese otra caracteristica del producto: ")
+                caracteristica = input("Ingrese otra caracteristica del producto: ").capitalize()
                 lista_caracteristicas.append(caracteristica)
             else:
                 break
         contador += 1
-
-    while True:
-        try:
-            id = int(input("Ingrese el ID del producto: "))
-            if id < 50:
-                id = int(input("Ingrese un valor de id que no exista:"))
-            break
-        except ValueError:
-            print("ERROR, eso no es un numero. Por favor, ingrese un numero")
 
     while True:
         try:
@@ -562,28 +556,68 @@ def ingreso_producto(ruta: str):
             break
         except ValueError:
             print("ERROR, eso no es un numero. Por favor, ingrese un numero")
-
     producto = {
-        'id': id,
+        'id': contador_de_id ,
         'nombre': nombre,
         'marca': marca,
         'precio': precio,
         'caracteristicas': lista_caracteristicas
     }
 
-    lista_productos.append(producto)
-
-    with open(ruta, 'a') as file:
-        file.write("======================\n")
-        file.write("Productos agregados:\n")
-        file.write("======================\n")
-        file.write(f"Nombre: {producto['nombre']}\n")
-        file.write(f"Marca: {producto['marca']}\n")
-        file.write(f"Caracteristicas: ")
+    with open(ruta2, 'a') as file:
+        file.write(f"{contador_de_id},")
+        file.write(f"{producto['nombre']},")
+        file.write(f"{producto['marca']},")
+        file.write(f"${producto['precio']},")
         for caracteristica in producto['caracteristicas']:
-            file.write(f" - {caracteristica}")  
-    return lista_productos
+            file.write(f"{caracteristica} - ")
+        file.write('\n')
 
 """
 Agregar una opción para guardar todos los datos actualizados (incluyendo las altas). El usuario elegirá el tipo de formato de exportación: csv o json.
 """
+def guardar_en_archivo(ruta: str, ruta2: str, ruta3: str):
+    while True:
+        try:
+            opcion = input("¿En qué tipo de archivo desea guardar los productos, en CSV o JSON? ").lower()
+
+            if opcion not in ["csv", "json"]:
+                print("ERROR: opción inválida")
+            else:
+                break
+
+        except ValueError:
+            print("ERROR: opción inválida")
+
+    if opcion == "csv":
+        guardar_csv(ruta, ruta2)
+    elif opcion == "json":
+        guardar_json(ruta, ruta3)
+
+
+def guardar_csv(ruta: str, ruta2: str):
+    lista_productos = leer_csv(ruta)
+
+    with open(ruta2, 'w', encoding='utf-8') as file:
+        for producto in lista_productos:
+            producto = [str(elemento) for elemento in producto]
+            linea_csv = ','.join(producto)
+            file.write(f"{linea_csv}\n")
+
+def guardar_json(ruta: str, ruta3: str):
+    lista_productos = leer_csv(ruta)
+
+    productos_json = []
+
+    for producto in lista_productos:
+        producto_json = {
+            "id": producto[0],
+            "nombre": producto[1],
+            "marca": producto[2],
+            "precio": producto[3],
+            "caracteristicas": producto[4]
+        }
+        productos_json.append(producto_json)
+
+    with open(ruta3, 'w', encoding='utf-8') as file:
+        json.dump(productos_json, file, indent=4)
