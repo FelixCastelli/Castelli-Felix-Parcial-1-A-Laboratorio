@@ -16,13 +16,15 @@ def menu_opciones():
 9- Actualizar precios
 10- Agregar un nuevo producto a la lista
 11- Guardar datos actualizados
-12- Salir del programa 
+12- Mostrar stock total de marca ingresada
+13- Crear archivo csv con productos con 2 o menos de stock
+14- Salir del programa 
     """)
     
     while True:
         try:
             opcion = int(input("Ingrese la opcion: "))
-            while opcion < 1 or opcion > 12:
+            while opcion < 1 or opcion > 14:
                 opcion = int(input("ERROR, ingrese un numero que este dentro de las opciones: "))
 
             return opcion
@@ -34,7 +36,8 @@ def menu_opciones():
 
 
     
-def elegir_opcion(opcion: int, ruta_csv: str, lista_csv: list, lista_dict_transformada: list, lista_alimentos: list, ruta_json: str, ruta_marcas_txt: str, ruta_csv_nueva: str, ruta_json_nueva: str):
+def elegir_opcion(opcion: int, ruta_csv: str, lista_csv: list, lista_dict_transformada: list, lista_alimentos: list, ruta_json: str, 
+                  ruta_marcas_txt: str, ruta_csv_nueva: str, ruta_json_nueva: str, ruta_csv_stock: str):
     salir = None # Inicializado en None indica que el usuario todavia no salio, si decide salir esta variable cambia de valor
     match opcion:
         case 1:
@@ -49,13 +52,13 @@ def elegir_opcion(opcion: int, ruta_csv: str, lista_csv: list, lista_dict_transf
         case 5:
             listar_insumos_ordenados(lista_dict_transformada, 'marca', 'precio', 'nombre', 'id', 'caracteristicas')
         case 6:
-            realizar_compra(lista_dict_transformada, 'marca', 'id', 'precio', 'nombre')
+            realizar_compra(lista_dict_transformada, 'marca', 'id', 'precio', 'nombre', 'stock')
         case 7:
             crear_json(lista_dict_transformada, 'nombre', 'Alimento')
         case 8:
             leer_json(ruta_json)
         case 9:
-            actualizar_precios(ruta_csv, lista_dict_transformada, 'id', 'nombre', 'marca', 'precio', 'caracteristicas')
+            actualizar_precios(ruta_csv, lista_dict_transformada, 'id', 'nombre', 'marca', 'precio', 'caracteristicas', 'stock')
         case 10:
             ingreso_producto(ruta_marcas_txt, ruta_csv, lista_dict_transformada)
             lista_csv = leer_csv(ruta_csv)
@@ -63,6 +66,10 @@ def elegir_opcion(opcion: int, ruta_csv: str, lista_csv: list, lista_dict_transf
         case 11:
             guardar_en_archivo(ruta_csv, ruta_csv_nueva, ruta_json_nueva)
         case 12:
+            mostrar_stock_por_marca(lista_dict_transformada, "marca", "stock")
+        case 13:
+            imprimir_bajo_stock(lista_dict_transformada, ruta_csv_stock, "stock")
+        case 14:
             os.system("cls")
             salir = input("Seguro que desea salir? s/n: ")
             pass

@@ -1,6 +1,7 @@
 import re
 import os
 import json
+import random
 
 """ 
 1 - Cargar datos desde archivo: Esta opción permite cargar el contenido del archivo "Insumos.csv" en una colección, teniendo en cuenta que las características de los insumos 
@@ -45,7 +46,7 @@ def transformar_lista_a_dict(ruta: str, lista: list, key: str, key2: str, key3: 
     Returns:
         list: La lista de diccionarios modificada con sus respectivas keys
     """
-    lista = list(map(lambda ins: {key: ins[0], key2: ins[1], key3: ins[2], key4: float(ins[3]), key5: ins[4]}, leer_csv(ruta)))
+    lista = list(map(lambda ins: {key: ins[0], key2: ins[1], key3: ins[2], key4: float(ins[3]), key5: ins[4], "stock": random.randint(0, 10)}, leer_csv(ruta)))
     print("==================================")
     print("La lista se guardó correctamente")
     print("==================================")
@@ -266,7 +267,7 @@ def crear_recibo_txt(lista: str, precio_final: float):
     file.close()
 
 
-def mostrar_productos(productos: list, key: str, key2: str, key3: str, key4: str):
+def mostrar_productos(productos: list, key: str, key2: str, key3: str, key4: str, key5: str):
     """Recibe una marca a eleccion y muestra todos los productos de esa marca
 
     Args:
@@ -290,6 +291,7 @@ ID: {producto[key]}
 Nombre: {producto[key2]}
 Precio: ${producto[key3]}
 Caracteristicas: {producto[key4.replace('[]', '')]}
+Stock: {producto[key5]}
 """)
         print("------------------------------------------------------------------------------")
 
@@ -318,13 +320,13 @@ def buscar_producto_por_marca(lista: list, key: str) -> list:
             print(f"No se encontraron productos de la marca {marca}")
             continue
 
-        mostrar_productos(productos_encontrados, 'id', 'nombre', 'precio', 'caracteristicas')
+        mostrar_productos(productos_encontrados, 'id', 'nombre', 'precio', 'caracteristicas', 'stock')
         break
 
     return productos_encontrados
 
 
-def realizar_compra(lista: list, key: str, key2: str, key3: str, key4: str) -> None:
+def realizar_compra(lista: list, key: str, key2: str, key3: str, key4: str, key5: str) -> None:
     """Realiza la compra en base a los productos encontrados el id y la cantidad ingresada y finalmente llama a la funcion de crear recibo con todos los datos acomodados
 
     Args:
@@ -352,14 +354,18 @@ def realizar_compra(lista: list, key: str, key2: str, key3: str, key4: str) -> N
         for producto in productos_encontrados:
             if id_ingresado == producto[key2]:
                 while True:
-                    try:
-                        cantidad_ingresada = int(input("Ingrese cuántos quiere llevar: "))
-
-                        while cantidad_ingresada < 1:
-                            cantidad_ingresada = int(input("ERROR, esa no es una cantidad valida, porfavor ingrese cuántos quiere llevar: "))
+                    if producto[key5] == 0:
+                        print("No hay stock de ese producto")
                         break
-                    except ValueError:
-                        print("ERROR, eso no es un número válido. Intente nuevamente.")
+                    else:
+                        try:
+                            cantidad_ingresada = int(input("Ingrese cuántos quiere llevar: "))
+
+                            while cantidad_ingresada > producto[key5] or cantidad_ingresada == 0:
+                                cantidad_ingresada = int(input("ERROR, no hay el suficiente stock: "))
+                            break
+                        except ValueError:
+                            print("ERROR, eso no es un número válido. Intente nuevamente.")
 
                 precio = float(producto[key3]) * cantidad_ingresada
                 acumulador_precio = acumulador_precio + precio
@@ -462,7 +468,7 @@ Caracteristicas: {i['caracteristicas']}
 9 - Actualizar precios: Aplica un aumento del 8.4% a todos los productos, utilizando la función map. Los productos actualizados se guardan en el archivo "Insumos.csv".
 """
 
-def actualizar_precios(ruta: str, lista: list, key: str, key2: str, key3: str, key4: str, key5: str):
+def actualizar_precios(ruta: str, lista: list, key: str, key2: str, key3: str, key4: str, key5: str, key6: str):
     """Recibe el archivo de csv y le aplica un aumento, luego reemplaza lo guardado en el archivo csv por los nuevos precios
 
     Args:
@@ -479,11 +485,12 @@ def actualizar_precios(ruta: str, lista: list, key: str, key2: str, key3: str, k
         'nombre': precio[key2],
         'marca': precio[key3], 
         'precio': round(((precio[key4] * 8.4 / 100) + precio[key4]), 2), 
-        'caracteristicas': (precio[key5])}, lista))
+        'caracteristicas': (precio[key5]),
+        'stock': (precio[key6])}, lista))
     
     with open(ruta, 'w', encoding='utf-8') as file:
         for precio in precios_actualizados:
-            lista_nuevos_precios = f"{precio['id']},{precio['nombre']},{precio['marca']},${precio['precio']},{precio['caracteristicas']}\n"  # Le doy formato a los datos
+            lista_nuevos_precios = f"{precio['id']},{precio['nombre']},{precio['marca']},${precio['precio']},{precio['caracteristicas']},{precio['stock']}\n"  # Le doy formato a los datos
             file.write(lista_nuevos_precios)
 
     print("============================================================================")
@@ -621,3 +628,29 @@ def guardar_json(ruta: str, ruta3: str):
 
     with open(ruta3, 'w', encoding='utf-8') as file:
         json.dump(productos_json, file, indent=4)
+
+"""
+Agregar opción stock por marca: Pedirle al usuario una marca y mostrar el stock total de los productos de esa marca.
+"""
+
+def mostrar_stock_por_marca(lista: str, key: str, key2: str):
+    contador_stock = 0
+    lista_productos_marca = buscar_producto_por_marca(lista, key)
+    for producto in lista_productos_marca:
+        contador_stock += producto[key2]
+    print(f"El stock total de los productos de la marca ingresada es: {contador_stock}")
+
+"""
+Agregar opción imprimir bajo stock. Que imprima en un archivo de texto en formato csv. 
+Un listado con el nombre de producto y el stock de aquellos productos que tengan 2 o menos unidades de stock.
+"""
+
+def imprimir_bajo_stock(lista: list, ruta: str, key: str):
+
+    with open(ruta, 'w', encoding='utf-8') as file:
+        for producto in lista:
+            if producto[key] <= 2:
+                producto_completo = f"{producto['id'], producto['nombre'], producto['marca'], producto['precio'], producto['caracteristicas'], producto[key]}"
+                producto_completo = producto_completo.replace("'", '').replace("(", '').replace(")", '')
+                file.write(f"{producto_completo}\n")
+        print("Archivo de stock creado con exito")
